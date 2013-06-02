@@ -52,6 +52,63 @@ void tm_def_print(const TM_Def *def) {
     }
 }
 
+int tm_def_save(const TM_Def *def, const char *filename) {
+    FILE *file = fopen(filename, "w+");
+    if (!file)
+        return 0;
+
+    fprintf(file, "%d,%d\n", def->numStates, def->numSymbols);
+
+    TM_State state;
+    TM_Symbol symbol;
+    for (state = 0; state < def->numStates; state++) {
+        for (symbol = 0; symbol < def->numSymbols; symbol++) {
+            TM_Transition *trans = &def->delta[state * def->numSymbols + symbol];
+            
+            fprintf(file, "%d,%d,%d\n", trans->newState, trans->newSymbol,
+                    trans->direction);
+        }
+    }
+
+    fclose(file);
+    return 1;
+}
+
+int tm_def_load(const char *filename, TM_Def *def) {
+    FILE *file = fopen(filename, "r");
+    if (!file)
+        return 0;
+
+    size_t numStates, numSymbols;
+    fscanf(file, "%d,%d\n", &numStates, &numSymbols);
+
+    size_t numTransitions = numStates * numSymbols;
+    TM_Transition *delta = malloc(sizeof(TM_Transition) * numTransitions);
+
+    TM_State state;
+    TM_Symbol symbol;
+    for (state = 0; state < numStates; state++) {
+        for (symbol = 0; symbol < numSymbols; symbol++) {
+            TM_Transition *trans = &delta[state * numSymbols + symbol];
+
+            fscanf(file, "%d,%d,%d\n", &trans->newState, &trans->newSymbol,
+                   &trans->direction);
+        }
+    }
+
+    def->numStates = numStates;
+    def->numSymbols = numSymbols;
+    def->delta = delta;
+
+    if (ferror(file)) {
+        fclose(file);
+        return 0;
+    }
+
+    fclose(file);
+    return 1;
+}
+
 TM_Config tm_config_create(const TM_Def *def,
                            size_t tapeWidth, size_t tapeHeight) {
     TM_Symbol *tape = malloc(sizeof(size_t) * tapeWidth * tapeHeight);

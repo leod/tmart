@@ -40,6 +40,8 @@ typedef struct TM_Config {
 TM_Def tm_def_create_random(size_t numStates, size_t numSymbols); 
 void tm_def_free(TM_Def *); 
 void tm_def_print(const TM_Def *);
+int tm_def_save(const TM_Def *, const char *filename);
+int tm_def_load(const char *filename, TM_Def *def);
 
 TM_Config tm_config_create(const TM_Def *def,
                            size_t tapeWidth, size_t tapeHeight);

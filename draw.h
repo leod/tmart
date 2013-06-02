@@ -5,6 +5,7 @@
 
 #include "tm.h"
 
-void draw_tm_config(SDL_Surface *, const TM_Config *);
+void draw_tm_config(SDL_Surface *, const TM_Config *, size_t zoomLevel,
+                    int startX, int startY);
 
 #endif
