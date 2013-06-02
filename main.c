@@ -8,14 +8,14 @@
 #include "draw.h"
 
 #define WIDTH 1920
-#define HEIGHT 1200
+#define HEIGHT 1080
 
 #undef main
 int main(int argc, char* argv[]) {
     srand(time(NULL));
 
-    size_t numStates = 4;
-    size_t numSymbols = 3;
+    size_t numStates = 5;
+    size_t numSymbols = 4;
 
     TM_Def tmDef;
     if (argc == 1) {
@@ -107,41 +107,44 @@ int main(int argc, char* argv[]) {
                 switch (event.button.button) {
                 case 4:
                     zoomLevel *= 2;
-                    break;
+                    goto Lrecalc;
                 case 5:
                     if (zoomLevel > 1) zoomLevel /= 2;
-                    break;
+                    goto Lrecalc;
+                Lrecalc:
+                    startX += mouseX / prevZoom - WIDTH / (zoomLevel * 2);
+                    startY += mouseY / prevZoom - HEIGHT / (zoomLevel * 2);
+
+                    if (startX < 0) startX = 0;
+                    if (startY < 0) startY = 0;
+                    if (startX >= WIDTH) startX = WIDTH - 1;
+                    if (startY >= HEIGHT) startY = HEIGHT - 1;
                 }
-
-                if (mouseX >= WIDTH) mouseX = WIDTH - 1;
-                if (mouseY >= HEIGHT) mouseY = HEIGHT - 1;
-                if (mouseX < 0) mouseX = 0;
-                if (mouseY < 0) mouseY = 0;
-
-                //startX = mouseX / pow(2, prevZoom) - WIDTH / pow(2, zoomLevel);
-                //startY = mouseY / pow(2, prevZoom) - HEIGHT / pow(2, zoomLevel);
-                startX += mouseX / prevZoom - WIDTH / zoomLevel;
-                startY += mouseY / prevZoom - HEIGHT / zoomLevel;
-
-                if (startX < 0) startX = 0;
-                if (startY < 0) startY = 0;
-                if (startX >= WIDTH) startX = WIDTH - 1;
-                if (startY >= HEIGHT) startY = HEIGHT - 1;
-
-                if (zoomLevel == 1) {
-                    startX = 0;
-                    startY = 0;
-                }
-
-                printf("%d %d\n", startX, startY);
 
                 break;
             }
             case SDL_MOUSEMOTION:
                 mouseX = event.motion.x;
                 mouseY = event.motion.y;
-                printf("%d %d\n", mouseX, mouseY);
+
                 break;
+            }
+        }
+
+        {
+            const int speed = 10;
+            if (mouseX < 10 && startX > 0)
+                startX -= speed;
+            else if (mouseX > WIDTH - 10 && startX < WIDTH)
+                startX += speed;
+            if (mouseY < 10 && startY > 0)
+                startY -= speed;
+            else if (mouseY > HEIGHT - 10 && startY < HEIGHT)
+                startY += speed;
+
+            if (zoomLevel == 1) {
+                startX = 0;
+                startY = 0;
             }
         }
 
