@@ -14,8 +14,8 @@
 int main(int argc, char* argv[]) {
     srand(time(NULL));
 
-    size_t numStates = 5;
-    size_t numSymbols = 4;
+    size_t numStates = 4;
+    size_t numSymbols = 3;
 
     TM_Def tmDef;
     if (argc == 1) {
